@@ -1,53 +1,54 @@
-# paths
-DSRC = ./src
-DOBJ = ./build
-DEXE = ./app
-DTEST = ./tests
-
+# Paths
+DSRC = src
+DOBJ = build
+DEXE = app
+DTEST = tests
+DMOD = mod
 EXEN = main.exe
 TEST_EXE = test.exe
 
-# flags
-FLAGS = -Wall -O3 -I$(DSRC) -I$(DOBJ)
-LIBS =  # Google Test and pthread libs
-
-# commands for compilation
+# Flags
+LIBS = 
+FLAGS = -O3 -I$(DOBJ) -I$(DMOD) -ffree-line-length-none -fcheck=all -fbacktrace -g -fimplicit-none -fno-omit-frame-pointer
+CC = gfortran $(FLAGS) -J$(DMOD) $(LIBS) -L$(DLIB) -c
 CCL = gfortran -o
-CC = gfortran $(FLAGS)
 
-# objects
-OBJECTS = 
+# Objects
+OBJECTS = $(DOBJ)/quad.o
+TEST_OBJECTS = 
 MAIN_OBJ = $(DOBJ)/main.o
-TEST_OBJECTS =  
+TEST_OBJ = 
+
+VPATH = $(DSRC):$(DTEST):$(DSRC)/$(DSH)
+
+
+
+# Default target
+all: main
+
+$(DOBJ)/%.o: %.f90 | $(DOBJ) $(DMOD)
+	$(CC) $< -o $@
+
+
+
+# Ensure required directories exist
+$(DOBJ) $(DEXE) $(DMOD) $(DTEST):
+	mkdir -p $@
 
 # Targets
-main: $(DEXE)/$(EXEN)
-
-# Link the main executable
-$(DEXE)/$(EXEN): $(OBJECTS) $(MAIN_OBJ)
+$(DEXE)/$(EXEN): $(MAIN_OBJ) $(OBJECTS) | $(DEXE)
 	$(CCL) $@ $(MAIN_OBJ) $(OBJECTS) $(LIBS)
 
-# Test executable target
-$(DEXE)/$(TEST_EXE): $(TEST_OBJECTS) $(OBJECTS)
-	$(CCL) $@ $(TEST_OBJECTS) $(OBJECTS) $(LIBS)
+$(DEXE)/$(TEST_EXE): $(TEST_OBJ) $(OBJECTS) $(TEST_OBJECTS) | $(DEXE)
+	$(CCL) $@ $(TEST_OBJ) $(OBJECTS) $(TEST_OBJECTS) $(LIBS)
 
-# Compile test object files (from ./test folder)
-$(DOBJ)/%.o: $(DTEST)/%.f90
-	$(CC) -I$(DOBJ) -I$(GTEST_INCLUDE_DIR) -c $< -o $@
+main: $(DEXE)/$(EXEN)
 
-# Compile source object files (from ./src folder)
-$(DOBJ)/%.o: $(DSRC)/%.f90
-	$(CC) -I$(DOBJ) -c $< -o $@
+run: $(DEXE)/$(EXEN)
+	$(DEXE)/$(EXEN)
 
-# Clean up build artifacts
-clean:
-	rm -rf $(DOBJ)/*.o $(DEXE)/*.exe
-
-# Run the main executable
-run: main
-	cd $(DEXE); \
-	./$(EXEN)
-
-# Run all tests
 test: $(DEXE)/$(TEST_EXE)
-	./$(DEXE)/$(TEST_EXE)  # Run the test executable
+	$(DEXE)/$(TEST_EXE)
+
+clean:
+	rm -rf $(DOBJ)/*.o $(DEXE)/*.exe $(DMOD)/*.mod
