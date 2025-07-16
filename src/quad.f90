@@ -1,7 +1,7 @@
 module quad
     implicit none
     private
-    public :: legquad
+    public :: legquad, lagquad
     type, abstract :: func
         contains
         procedure(eval_interface), deferred :: eval
@@ -22,25 +22,28 @@ module quad
         procedure ::eval => legendre_eval
     end type
 
+    type , extends(func) :: laguerre
+        integer :: n
+        contains
+        procedure ::eval => laguerre_eval
+    end type
+
+
+    type , extends(func) :: hermite
+        integer :: n
+        contains
+        procedure ::eval => hermite_eval
+    end type
+
+
     contains
 
-    pure function legendre_eval(self, x) result(y)
-        class(legendre), intent(in) :: self
-        real(8), intent(in) :: x
-        real(8) :: y
-        integer :: i
-
-        y = Pn(x,self%n)
-    end function legendre_eval
 
     !! > Subroutine for computing legendre quadrature weights and absiccas 
     !! > 
-    !! > The integral
-    !! > lb: -1
-    !! > ub: 1
-    !! > integrand: f(x) dx
+    !! > Integrate: I =  int f(x) dx with bounds [-1, 1]
     !! > is calculated as:
-    !! > integral = sum_i=1,n   leg_w(i) * f(leg_x(i))
+    !! > I = sum_i=1,n   leg_w(i) * f(leg_x(i))
     !! > 
     !! > n weights can integrate a polynomial of order 2n + 1 exactly.
     !! > If a 2n+1 polynomial can approximate f(x) well, legendre quadrature of order n is a good choice of quadrature points
@@ -76,6 +79,42 @@ module quad
         do k = 1, n !!Calculates weights
             x = leg_x(k)
             leg_w(k) = 2.0d0/((1.0d0-leg_x(k)**2)* Pnd(leg_x(k),n)**2)
+        end do
+    end subroutine
+
+    !! > Subroutine for computing laguerre quadrature weights and absiccas 
+    !! > 
+    !! > 
+    !! > Integrate: I = int f(x) e^-x dx with bounds [0, +infty]
+    !! > is calculated as:
+    !! > I = sum_i=1,n   lag_w(i) * f(lag_x(i))
+    !! > 
+    !! > n weights can integrate a polynomial of order 2n + 1 exactly.
+    !! > If a 2n+1 polynomial can approximate f(x) well, laguerre quadrature of order n is a good choice of quadrature points
+    !! > 
+    !! > Author: Filip Agert (2025)
+    subroutine LAGQUAD(lag_x,lag_w,n)
+        integer, intent(in) :: n !! Number of integration points
+        real(8), dimension(n), intent(out) :: lag_x !!integration absiccas
+        real(8), dimension(n), intent(out) :: lag_w! !integration weights
+        real(8) :: guess, x, val
+        type(laguerre) ::lag
+        integer :: ub, k, lb
+        lag = laguerre(n=n)
+        lag_x = 0
+        do k =1,n
+            guess =lag_root_approx(n,k) !Approximate root
+            lag_x(k) = find_root(lag, guess) !Refine root computation
+            write(*,'(A,F10.3,A,E10.3)') "Root guess: ", guess, ", root found:", lag_x(k)
+        end do
+        
+
+
+        do k = 1, n !!Calculates weights
+            x = lag_x(k)
+            val = Ln(x,n)
+            write(*,'(A,E15.8,A,E15.8)') "Root: ", x, ", val:", val
+            lag_w(k) = x / ( (n+1) * Ln(x,n+1))**2
         end do
     end subroutine
 
@@ -126,8 +165,16 @@ module quad
         hmn = h(n)
     end function
 
+    pure function hermite_eval(self, x) result(y)
+        class(hermite), intent(in) :: self
+        real(8), intent(in) :: x
+        real(8) :: y
+
+        y = hmn(x,self%n)
+    end function hermite_eval
+
     pure real(8) elemental function Lmn(x,n)
-        ! Computes the value of the n-th laguerre polynomial at x
+        ! Computes the value of the n-th modified laguerre polynomial at x
         integer, intent(in) :: n
         real(8), intent(in) :: x
         real(8), parameter :: pi = ACOS(-1.0d0), rootrootpi = sqrt(sqrt(pi))
@@ -138,12 +185,52 @@ module quad
         L(0) = exp(-x/ 2.0d0)
         if(n>0) then
             do i = 0, n-1
-                L(i + 1) = (2*i + 1  - x)/(i + 1) *L(i) - real(i,8)/(i+1.0d0) * L(i-1)
+                L(i + 1) = ((2*i + 1.0d0  - x)*L(i) - real(i,8)* L(i-1))/(i+1.0d0)
             end do
         endif
         Lmn = L(n)
     end function
 
+    pure real(8) elemental function Ln(x,n)
+        ! Computes the value of the n-th laguerre polynomial at x
+        integer, intent(in) :: n
+        real(8), intent(in) :: x
+        real(8), dimension(0:n) ::L
+        integer ::i
+
+        L(0) = 1
+ 
+        if(n>0) then
+            L(1) = 1-x
+            do i = 1, n-1
+                L(i + 1) = ((2*i + 1.0d0  - x)*L(i) - real(i,8)* L(i-1))/(i+1.0d0)
+            end do
+        endif
+        Ln = L(n)
+    end function
+
+    pure function laguerre_eval(self, x) result(y)
+        class(laguerre), intent(in) :: self
+        real(8), intent(in) :: x
+        real(8) :: y
+
+        y = Lmn(x,self%n)
+    end function laguerre_eval
+
+    pure real(8) elemental function lag_root_approx(n, k) result(root)
+        ! Approximate the k-th root of the n-th laguerre polynomial via an asymptotic formula with error on order (1/n^5)
+        integer, intent(in) :: n, k
+        real(8) :: theta, invn
+        real(8), parameter :: pi =ACOS(-1.0d0)
+        if(k == 1) then
+            invn = 1.0d0/n
+            root = invn + invn**2 * (n-1.0d0)/2 - invn**3*(n**2 +3*n - 4.0d0)/12 + invn**4*(7.0d0*n**3+6*n**2+23*n-36)/144 ! + O(1/n^5)
+        else
+
+        endif
+    end function
+
+    !! ######################### LEGENDRE ########################
     pure real(8) elemental function Pn(x,n)
         ! Computes the value of the n-th legendre polynomial at x
         integer, intent(in) :: n
@@ -169,6 +256,14 @@ module quad
 
         Pnd = (n)*(x*Pn(x,n)-Pn(x,n-1)) / (x**2 - 1.0d0)
     end function
+
+    pure function legendre_eval(self, x) result(y)
+        class(legendre), intent(in) :: self
+        real(8), intent(in) :: x
+        real(8) :: y
+
+        y = Pn(x,self%n)
+    end function legendre_eval
 
     pure real(8) elemental function leg_root_approx(n, k)
         ! Approximate the k-th root of the n-th Legendre polynomial via an asymptotic formula with error on order (1/n^5)
