@@ -10,7 +10,7 @@ TEST_EXE = test.exe
 # Flags
 LIBS = 
 FLAGS = -O3 -I$(DOBJ) -I$(DMOD) -ffree-line-length-none -fcheck=all -fbacktrace -g -fimplicit-none -fno-omit-frame-pointer
-CC = gfortran $(FLAGS) -J$(DMOD) $(LIBS) -L$(DLIB) -c
+CC = gfortran $(FLAGS) -J$(DMOD) $(LIBS) -c
 CCL = gfortran -o
 
 # Objects
@@ -21,7 +21,7 @@ TEST_OBJ =
 
 VPATH = $(DSRC):$(DTEST):$(DSRC)/$(DSH)
 
-
+$(DOBJ)/main.o: $(DSRC)/main.f90 $(DOBJ)/quad.o
 
 # Default target
 all: main

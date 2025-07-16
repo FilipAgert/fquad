@@ -1,4 +1,12 @@
 program main
+    use quad
+    integer, parameter :: n = 7
+    real(8) ::roots(n), weights(n)
+    integer :: k
+    call LEGQUAD(roots, weights, n)
+    do k =1,n
+        write(*,'(I3, A, E22.14, A, E22.14)') k ,"th root found: ", roots(k), ", weight: ", weights(k)
+    end do
 
-    write(*,*) "Hello, World!"
+
 end program main
