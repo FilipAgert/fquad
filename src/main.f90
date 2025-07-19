@@ -1,6 +1,6 @@
 program main
     use quad
-    integer, parameter :: n = 10
+    integer, parameter :: n = 32
     real(8) ::roots(n), weights(n)
     integer :: k
     call LEGQUAD(roots, weights, n)

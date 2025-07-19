@@ -5,7 +5,16 @@ module quad
     type, abstract :: func
         contains
         procedure(eval_interface), deferred :: eval
+        procedure(eval_interface), deferred :: evaldfdx
     end type func
+
+    type, abstract :: diffeq
+        contains
+        procedure(diffeq_int), deferred :: evaldydx
+
+    end type
+
+    
 
     abstract interface
         pure function eval_interface(self, x) result(y)
@@ -14,18 +23,28 @@ module quad
             real(8), intent(in) :: x
             real(8) :: y
         end function eval_interface
+
+        pure  function diffeq_int(self, x, y)  result(dydx)
+            import::diffeq
+            real(8), intent(in) :: x,y
+            real(8) :: dydx
+            class(diffeq), intent(in) :: self
+        end function
     end interface
+
 
     type , extends(func) :: legendre
         integer :: n
         contains
         procedure ::eval => legendre_eval
+        procedure :: evaldfdx => legendre_evaldfdx
     end type
 
     type , extends(func) :: laguerre
         integer :: n
         contains
         procedure ::eval => laguerre_eval
+        procedure :: evaldfdx => laguerre_evaldfdx
     end type
 
 
@@ -33,7 +52,21 @@ module quad
         integer :: n
         contains
         procedure ::eval => hermite_eval
+        procedure :: evaldfdx => hermite_evaldfdx
     end type
+
+    type, extends(diffeq) :: laguerre_diff
+        integer :: n
+        contains
+        procedure :: evaldydx => diffeqlag
+    end type
+
+    interface
+        function f2d(x,y)
+            real(8), intent(in) :: x,y
+            real(8) :: f2d
+        end function
+    end interface
 
 
     contains
@@ -97,23 +130,37 @@ module quad
         integer, intent(in) :: n !! Number of integration points
         real(8), dimension(n), intent(out) :: lag_x !!integration absiccas
         real(8), dimension(n), intent(out) :: lag_w! !integration weights
-        real(8) :: guess, x, val
+        real(8) :: guess, x, val, init_cond_y, init_cond_x
+        real(8), parameter :: pi =acos(-1.0d0)
         type(laguerre) ::lag
+        type(laguerre_diff) :: lagdiff
         integer :: ub, k, lb
         lag = laguerre(n=n)
+        lagdiff = laguerre_diff(n=n)
         lag_x = 0
-        do k =1,n
-            guess =lag_root_approx(n,k) !Approximate root
+        guess = lag_root_approx(n,1) !First root
+        lag_x(1) = find_root(lag, guess) !Refine root computation
+
+
+        do k =2,n
+            init_cond_y = lag_x(k-1)
+            init_cond_x = pi /2.0d0
+            call solveRK(guess, -pi/2.0d0, init_cond_x, init_cond_y, lagdiff)
+            write(*,'(A,F10.3,A,F10.3)', advance='no') "Guess: ", guess
             lag_x(k) = find_root(lag, guess) !Refine root computation
-            write(*,'(A,F10.3,A,E10.3)') "Root guess: ", guess, ", root found:", lag_x(k)
+            write(*,'(A,F10.3,A,F10.3)')", found root:", lag_x(k)
+            if (k>1) then 
+                if(lag_x(k) .le. lag_x(k-1)) then
+                    write(*,*) "wrong zero found: ", lag_x(k-1:k)
+                    stop
+                endif
+            endif
         end do
         
 
 
         do k = 1, n !!Calculates weights
             x = lag_x(k)
-            val = Ln(x,n)
-            write(*,'(A,E15.8,A,E15.8)') "Root: ", x, ", val:", val
             lag_w(k) = x / ( (n+1) * Ln(x,n+1))**2
         end do
     end subroutine
@@ -121,19 +168,19 @@ module quad
     real(8) function find_root(f, x0) result(x)
         class(func), intent(in) :: f !!function to evaluate
         real(8), intent(in) :: x0 !!starting guess for root
-        real(8) :: fx, dfx, xprev
+        real(8) :: fx, dfdx, xprev
 
         integer :: ii
-        integer, parameter :: max_iter = 30
-        real(8), parameter :: dx =1e-9_8, tol = 1e-14_8
+        integer, parameter :: max_iter = 40
+        real(8), parameter :: tol = 1e-15_8
         x = x0
         do ii = 1, max_iter
             
             fx = f%eval(x)
-            dfx = (f%eval(x + dx) -fx)/dx
-
+            dfdx = f%evaldfdx(x)
             xprev = x
-            x = x - fx / dfx
+            x = x  -fx/ dfdx
+
             if(abs(x-xprev) < tol) exit
         end do
 
@@ -165,6 +212,15 @@ module quad
         hmn = h(n)
     end function
 
+
+    pure real(8) elemental function hmnd(x,n)
+        ! Computes the value of the n-th Hermite polynomial at x
+        integer, intent(in) :: n
+        real(8), intent(in) :: x
+
+        hmnd = 2*n*hmn(x,n-1) - x*hmn(x,n)
+    end function
+
     pure function hermite_eval(self, x) result(y)
         class(hermite), intent(in) :: self
         real(8), intent(in) :: x
@@ -172,6 +228,14 @@ module quad
 
         y = hmn(x,self%n)
     end function hermite_eval
+
+    pure function hermite_evaldfdx(self, x) result(y)
+        class(hermite), intent(in) :: self
+        real(8), intent(in) :: x
+        real(8) :: y
+
+        y = hmnd(x,self%n)
+    end function hermite_evaldfdx
 
     pure real(8) elemental function Lmn(x,n)
         ! Computes the value of the n-th modified laguerre polynomial at x
@@ -189,6 +253,14 @@ module quad
             end do
         endif
         Lmn = L(n)
+    end function
+
+    pure real(8) elemental function Lmnd(x,n)
+        ! Computes the derivative of the n-th modified laguerre polynomial at x
+        integer, intent(in) :: n
+        real(8), intent(in) :: x
+        !!d/dx L_n = (nL_n - nL_n-1)    /x
+        Lmnd = n*(Lmn(x,n) - Lmn(x,n-1))/x - 0.5 *Lmn(x,n) 
     end function
 
     pure real(8) elemental function Ln(x,n)
@@ -217,17 +289,42 @@ module quad
         y = Lmn(x,self%n)
     end function laguerre_eval
 
+        pure function laguerre_evaldfdx(self, x) result(y)
+        class(laguerre), intent(in) :: self
+        real(8), intent(in) :: x
+        real(8) :: y
+
+        y = Lmnd(x,self%n)
+    end function laguerre_evaldfdx
+
     pure real(8) elemental function lag_root_approx(n, k) result(root)
         ! Approximate the k-th root of the n-th laguerre polynomial via an asymptotic formula with error on order (1/n^5)
         integer, intent(in) :: n, k
-        real(8) :: theta, invn
+        real(8) :: theta, invn, nu,bzsq, rho,bz, phi
         real(8), parameter :: pi =ACOS(-1.0d0)
         if(k == 1) then
             invn = 1.0d0/n
             root = invn + invn**2 * (n-1.0d0)/2 - invn**3*(n**2 +3*n - 4.0d0)/12 + invn**4*(7.0d0*n**3+6*n**2+23*n-36)/144 ! + O(1/n^5)
+            ! src: https://en.wikipedia.org/wiki/Laguerre_polynomials
         else
-
+            rho = n + 0.5d0
+            bz = bessel_zero_approx(k)
+            phi = bz/rho
+            root = phi + (-0.25d0)*(1.0d0-phi*cotan(phi))/(2*phi) / rho**2 
         endif
+    end function
+
+    pure real(8) elemental function bessel_zero_approx(k) result(root)
+        ! Approximate the k-th root of J_0 bessel function
+        ! https://dlmf.nist.gov/10.21#vi
+        integer, intent(in) :: k !!kth zero of bessel
+        real(8) :: theta, invn
+        real(8), parameter :: pi =ACOS(-1.0d0)
+        real(8) :: a, inv8a
+        a = (k - 0.25d0) * pi
+        inv8a = 1.0d0/(8*a)
+        root = a + inv8a - inv8a**3* 4.0d0*31.0d0 / (3) + inv8a**5*32*(3779.0d0)/(15) - inv8a**7 *(64*6277237.0d0)/(105)
+
     end function
 
     !! ######################### LEGENDRE ########################
@@ -265,16 +362,68 @@ module quad
         y = Pn(x,self%n)
     end function legendre_eval
 
+    pure function legendre_evaldfdx(self, x) result(y)
+        class(legendre), intent(in) :: self
+        real(8), intent(in) :: x
+        real(8) :: y
+
+        y = Pnd(x,self%n)
+    end function legendre_evaldfdx
+
     pure real(8) elemental function leg_root_approx(n, k)
         ! Approximate the k-th root of the n-th Legendre polynomial via an asymptotic formula with error on order (1/n^5)
         integer, intent(in) :: n, k
         real(8), parameter :: pi = ACOS(-1.0d0)
         real(8) :: theta
         integer :: intpart
-
         intpart = n/2 - k
         theta = pi * (intpart * 4.0d0 - 1.0d0 ) / (4*n+2)
-
         leg_root_approx = cos(theta) * (1 - (n-1.0d0) / (8*n**3) - (39.0d0 - 28.0d0/sin(theta)**2)/(384.0d0*n**4))
     end function
+
+    pure function diffeqlag(self, x, y) result(val)
+        class(laguerre_diff), intent(in) :: self
+        real(8), intent(in) :: x,y
+        real(8) :: val
+
+        val = -1.0d0/(sqrt(r(self,y)/p(y)) - (1.0d0 + q(y)) / (2*p(y)) * sin(2.0d0*x)/2 )
+        contains
+
+        pure real(8) function r(self, x)
+            class(laguerre_diff), intent(in) :: self
+            real(8), intent(in) :: x
+            r = self%n
+        end function
+        pure real(8) function q(x)
+            real(8), intent(in) :: x
+            q = 1-x
+        end function
+        pure real(8) function p(x)
+            real(8),intent(in) :: x
+            p=x
+        end function
+    end function
+
+    !! Solve for y given y' = f(x,y) and y(x0)=y0
+    subroutine solveRK(yval, xval,x0,y0,eq)
+        real(8), intent(in) :: xval, x0, y0
+        real(8), intent(out) :: yval
+        class(diffeq), intent(in) :: eq
+        integer, parameter :: steps = 200
+        real(8) :: L, h, k(0:steps), y(0:steps), x
+        integer ::i
+
+
+        L = xval-x0
+        h = L/steps
+        y(0) = y0
+        k(0) = eq%evaldydx(x0, y0)
+        x = x0
+        do i = 0,steps-1
+            x = x + h
+            k(i+1) = h * eq%evaldydx(x, y(i)+k(i))
+            y(i+1) = y(i) + 0.5 * (k(i)+k(i+1))
+        end do
+        yval = y(steps)
+    end subroutine
 end module quad
