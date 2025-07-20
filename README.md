@@ -75,8 +75,9 @@ app/fquad lag 128
 | Laguerre | 1000  | 3.4         |
 | Legendre | 128   | 0.06        |
 | Legendre | 1000  | 1.4         |
+---
 
 ## Precision
+
 Default precision is 128 bit real numbers (quad precision). Edit parameter r_kind in quad.f90 to change precision.
 Roots are found to within 50 times machine precision.
----
