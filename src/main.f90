@@ -41,7 +41,7 @@ program main
     open(unit = 3, file=trim(file))
 
     do k =1,nquad
-        write(3,'(E32.20, 2x, E32.20)')roots(k), weights(k)
+        write(3,'(E32.20E3, 2x, E32.20E3)')roots(k), weights(k)
     end do
     close(3)
     write(*,'(A,F10.3,A)')"Quadrature evaluated, time taken: ", t1-t0, " s"
