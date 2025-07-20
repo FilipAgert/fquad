@@ -3,7 +3,7 @@ DSRC = src
 DOBJ = build
 DEXE = app
 DMOD = mod
-EXEN = main.exe
+EXEN = fquad
 all: $(DEXE)/$(EXEN)
 # Flags
 LIBS = 
