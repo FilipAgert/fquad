@@ -25,7 +25,7 @@ make
 This builds the executable at:
 
 ```
-app/main.exe
+app/fquad
 ```
 
 ---
@@ -35,7 +35,7 @@ app/main.exe
 Use the following syntax:
 
 ```bash
-app/main.exe <type> <nquad>
+app/fquad <type> <nquad>
 ```
 
 Where:
@@ -59,7 +59,7 @@ The file contains:
 Example:
 
 ```bash
-app/main.exe lag 128
+app/fquad lag 128
 # Output: lagquad_128.dat
 ```
 
