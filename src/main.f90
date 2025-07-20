@@ -2,14 +2,38 @@ program main
     use quad
     integer, parameter :: n = 64
     real(kind=r_kind) ::roots(n), weights(n), t0, t1
-    integer :: k
+    integer :: k, nquad
     character(len=50) :: file
+    character(len=50) :: arg1, arg2
+    integer :: nargs
+    nargs = command_argument_count()
+    if(nargs == 2) then
+        call get_command_argument(1,arg1)
+        call get_command_argument(2,arg1)
+        read(arg2, '(I50)') nquad !!read number of points
+    else
+        arg1 = "leg"
+        nquad = n
+    endif
+
+    arg1 = trim(arg1)
+
     call cpu_time(t0)
-    call LEGQUAD(roots, weights, n)
+    if(arg1 == "leg") then
+        call LEGQUAD(roots, weights, nquad)
+    else if(arg1 == "lag") then
+        call LAGQUAD(roots, weights, nquad)
+    else if(arg1 == "her") then
+        CALL HERQUAD(roots, weights, nquad)
+    else
+        write(*,*) "Invalid quad option. Allowed : leg/lag/her"
+        stop
+    endif
+
     call cpu_time(t1)
-    !call LAGQUAD(roots, weights, n)
+
     !call HERQUAD(roots, weights, n)
-    write(file, '(A,I0,A)') 'quad_',n,'.dat'
+    write(file, '(A3,A,I0,A)') arg1,'quad_',n,'.dat'
     open(unit = 3, file=file)
 
     do k =1,n
