@@ -2,7 +2,9 @@
 
 Computes points and weights of Gaussian quadrature in Fortran.
 
-Supported quadrature types: **Hermite**, **Laguerre**, and **Legendre**.
+Supported quadrature types: **Laguerre**, and **Legendre**.
+
+Work in process quadrature type: **Hermite**
 
 For background, see: [Gaussian quadrature on Wikipedia](https://en.wikipedia.org/wiki/Gaussian_quadrature)
 
@@ -40,7 +42,7 @@ app/fquad <type> <nquad>
 
 Where:
 
-- `<type>`: Type of quadrature — one of `her`, `lag`, or `leg`
+- `<type>`: Type of quadrature — one of `lag`, or `leg`
 - `<nquad>`: Number of Gaussian quadrature points
 
 This generates an output file named:
@@ -73,10 +75,8 @@ app/fquad lag 128
 | Laguerre | 1000  | 3.4         |
 | Legendre | 128   | 0.06        |
 | Legendre | 1000  | 1.4         |
-| Hermite  | 128   | 22          |
-| Hermite  | 1000  | N/A         |
 
-> ⚠️ Hermite quadrature uses Newton's method and converges very slowly for large `N`.  
-> Above `N = 128`, convergence is **not guaranteed** and has not been tested.
-
+## Precision
+Default precision is 128 bit real numbers (quad precision). Edit parameter r_kind in quad.f90 to change precision.
+Roots are found to within 50 times machine precision.
 ---
