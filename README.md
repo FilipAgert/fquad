@@ -30,7 +30,7 @@ app/main.exe
 
 ---
 
-## ▶️ Running the Program
+## Running the Program
 
 Use the following syntax:
 
@@ -65,7 +65,7 @@ app/main.exe lag 128
 
 ---
 
-## ⏱️ Runtime Benchmarks
+## Runtime Benchmarks
 
 | Type     | N     | Runtime (s) |
 |----------|-------|-------------|
