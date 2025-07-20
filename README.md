@@ -1,47 +1,82 @@
 # fquad
-Computes points and weights of gaussian quadrature in Fortran.
 
-Quadrature implemented: Hermite, Laguerre and Legendre.
+Computes points and weights of Gaussian quadrature in Fortran.
 
-https://en.wikipedia.org/wiki/Gaussian_quadrature
+Supported quadrature types: **Hermite**, **Laguerre**, and **Legendre**.
 
-The algorithm in
+For background, see: [Gaussian quadrature on Wikipedia](https://en.wikipedia.org/wiki/Gaussian_quadrature)
 
-A. Glaser, X. Liu, and V. Rokhlin, A Fast Algorithm for the Calculation of the Roots of Special Functions, SIAM J. Sci. Comput. 29, 1420 (2007).
+The root-finding algorithm is based on:
 
-is used for computing the quadrature roots.
+> **A. Glaser, X. Liu, and V. Rokhlin**  
+> *A Fast Algorithm for the Calculation of the Roots of Special Functions*  
+> SIAM J. Sci. Comput. 29, 1420 (2007)
 
-# Compiling program
+---
 
-To compile the program, run the command make in the fquad directory.
+## Compiling the Program
 
-This compiles the program into app/main.exe
-# Run program
-To run the program, run the command app/main.exe \<type\> \<nquad\> with command line options
- 
-\<type\>: Type of quadrature: her, lag, leg
+To compile, simply run:
 
-\<nquad\>: Number of Gaussian quadrature points 
+```bash
+make
+```
 
-This outputs into a file named \<type\>quad_\<nquad\>.dat into the root folder.
+This builds the executable at:
 
-The first column in the file is the quadrature nodes, while the second column is the quadrature weights.
+```
+app/main.exe
+```
 
-# Runtime
-Type     N       Runtime [s]
+---
 
-Laguerre    128          0.2
+## ▶️ Running the Program
 
-Laguerre    1000         3.4
+Use the following syntax:
 
-Legendre    128          0.06
+```bash
+app/main.exe <type> <nquad>
+```
 
-Legendre    1000         1.4
+Where:
 
-Hermite    128           22
+- `<type>`: Type of quadrature — one of `her`, `lag`, or `leg`
+- `<nquad>`: Number of Gaussian quadrature points
 
-Hermite     1000         N/A
+This generates an output file named:
 
-The Newton method converges very slowly for Hermite quadrature which is the reason for the large runtime.
+```
+<type>quad_<nquad>.dat
+```
 
-Hermite quadrature is not tested above 128 quadrature points and might not converge.
+The file contains:
+
+| Column | Description        |
+|--------|--------------------|
+| 1      | Quadrature nodes   |
+| 2      | Quadrature weights |
+
+Example:
+
+```bash
+app/main.exe lag 128
+# Output: lagquad_128.dat
+```
+
+---
+
+## ⏱️ Runtime Benchmarks
+
+| Type     | N     | Runtime (s) |
+|----------|-------|-------------|
+| Laguerre | 128   | 0.2         |
+| Laguerre | 1000  | 3.4         |
+| Legendre | 128   | 0.06        |
+| Legendre | 1000  | 1.4         |
+| Hermite  | 128   | 22          |
+| Hermite  | 1000  | N/A         |
+
+> ⚠️ Hermite quadrature uses Newton's method and converges very slowly for large `N`.  
+> Above `N = 128`, convergence is **not guaranteed** and has not been tested.
+
+---
