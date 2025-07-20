@@ -58,7 +58,6 @@ program main
         write(*,'(A)') "Integrate f(x) = x^3 / (e^(x)-1) with bounds [0, inf]"
         write(*,'(A25,E45.32)') adjustl("Analytical solution: I = "), ACOS(-1.0_r_kind)**4 / 15
         write(*,'(A25,E45.32)') adjustl("Quadrature solution: I = "), sum(roots**3/(1-exp(-roots))*weights,1)
-    else
     endif
 
 end program main
