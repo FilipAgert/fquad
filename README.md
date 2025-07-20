@@ -43,3 +43,5 @@ Hermite    128           22
 Hermite     1000         N/A
 
 The Newton method converges very slowly for Hermite quadrature which is the reason for the large runtime.
+
+Hermite quadrature is not tested above 128 quadrature points and might not converge.
