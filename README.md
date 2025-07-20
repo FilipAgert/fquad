@@ -80,9 +80,4 @@ app/fquad lag 128
 ## Precision
 
 Default precision is 128 bit real numbers (quad precision). Edit parameter r_kind in quad.f90 to change precision.
-<<<<<<< HEAD
-Roots are found to within 50 times machine precision.
-=======
 Roots are found to within 2 times machine precision.
----
->>>>>>> 180f83d (update readme to reflect root precision)
