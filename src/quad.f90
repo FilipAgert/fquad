@@ -325,7 +325,7 @@ module quad
 
 
     pure real(kind=r_kind) elemental function hmnd(x,n)
-        ! Computes the value of the derivative n-th Hermite polynomial at x
+        ! Computes the value of the derivative n-th modified Hermite polynomial at x
         integer, intent(in) :: n
         real(kind=r_kind), intent(in) :: x
 
@@ -409,7 +409,7 @@ module quad
     end function laguerre_evaldfdx
 
     pure real(kind=r_kind) elemental function lag_root_approx(n, k) result(root)
-        ! Approximate the k-th root of the n-th laguerre polynomial via an asymptotic formula with error on order (1/n^5)
+        ! Approximate the k-th root of the n-th laguerre polynomial
         integer, intent(in) :: n, k
         real(kind=r_kind) :: invn, rho,bz, phi
         real(kind=r_kind), parameter :: pi =ACOS(-1.0_r_kind)
@@ -426,7 +426,7 @@ module quad
     end function
 
     pure real(kind=r_kind) elemental function her_root_approx(n, k) result(root)
-        ! Approximate the k-th root of the n-th laguerre polynomial via an asymptotic formula with error on order (1/n^5)
+        ! Approximate the 1st root of the n-th hermite polynomial
         integer, intent(in) :: n, k
         real(kind=r_kind) :: airy_firstroot
         root = 0
