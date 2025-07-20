@@ -11,10 +11,9 @@ Compiling:
 To compile the program, run the command make in the fquad directory.
 This compiles the program into app/main.exe
 
-To run the program, do app/main.exe <type> <nquad>
-with command line options 
-<type>: Type of quadrature: her, lag, leg
-<nquad>: Number of Gaussian quadrature points 
+To run the program, run the command app/main.exe \<type\> \<nquad\> with command line options 
+\<type\>: Type of quadrature: her, lag, leg
+\<nquad\>: Number of Gaussian quadrature points 
 
 Legendre and laguerre quadrature computes fast.
 The Newton method converges very slowly for Hermite quadrature.
