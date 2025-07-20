@@ -9,8 +9,8 @@ program main
     nargs = command_argument_count()
     if(nargs == 2) then
         call get_command_argument(1,arg1)
-        call get_command_argument(2,arg1)
-        read(arg2, '(I50)') nquad !!read number of points
+        call get_command_argument(2,arg2)
+        read(arg2, *) nquad !!read number of points
     else
         arg1 = "leg"
         nquad = n

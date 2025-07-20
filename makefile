@@ -36,7 +36,8 @@ $(DEXE)/$(EXEN): $(MAIN_OBJ) $(OBJECTS) | $(DEXE)
 main: $(DEXE)/$(EXEN)
 
 run: $(DEXE)/$(EXEN)
-	$(DEXE)/$(EXEN)
+	$(DEXE)/$(EXEN) $(ARG1) $(ARG2)
+
 
 
 clean:
