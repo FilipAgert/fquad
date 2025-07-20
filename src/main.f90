@@ -39,6 +39,7 @@ program main
     do k =1,n
         write(3,'(E32.20, 2x, E32.20)')roots(k), weights(k)
     end do
+    close(3)
     write(*,'(A,F10.3,A)')"Quadrature evaluated, time taken: ", t1-t0, " s"
 
 end program main
