@@ -30,12 +30,8 @@ program main
         call LEGQUAD(roots, weights, nquad)
     else if(arg1 == "lag") then
         call LAGQUAD(roots, weights, nquad)
-    else if(arg1 == "her") then
-        WRITE(*,*) "Hermite quadrature currently not supported due to slow convergence rate in root finding."
-        STOP
-        CALL HERQUAD(roots, weights, nquad)
     else
-        write(*,*) "Invalid <type> option. Allowed : leg/lag/her"
+        write(*,*) "Invalid <type> option. Allowed : leg/lag"
         stop
     endif
 
