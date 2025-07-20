@@ -4,6 +4,8 @@ Computes points and weights of Gaussian quadrature in Fortran.
 
 Supported quadrature types: **Laguerre**, and **Legendre**.
 
+Tested up to 128 points. After this convergence is not guaranteed.
+
 Work in process quadrature type: **Hermite**
 
 For background, see: [Gaussian quadrature on Wikipedia](https://en.wikipedia.org/wiki/Gaussian_quadrature)
@@ -72,9 +74,7 @@ app/fquad lag 128
 | Type     | N     | Runtime (s) |
 |----------|-------|-------------|
 | Laguerre | 128   | 0.2         |
-| Laguerre | 1000  | 3.4         |
 | Legendre | 128   | 0.06        |
-| Legendre | 1000  | 1.4         |
 ---
 
 ## Precision
