@@ -35,6 +35,7 @@ Legendre    128          0.06
 Legendre    1000         1.4
 
 Hermite    128           22
+
 Hermite     1000         N/A
 
 The Newton method converges very slowly for Hermite quadrature which is the reason for the large runtime.
