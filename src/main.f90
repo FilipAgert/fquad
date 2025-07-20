@@ -1,15 +1,20 @@
 program main
     use quad
-    integer, parameter :: n = 32
-    real(kind=r_kind) ::roots(n), weights(n)
+    integer, parameter :: n = 64
+    real(kind=r_kind) ::roots(n), weights(n), t0, t1
     integer :: k
-    !call LEGQUAD(roots, weights, n)
+    character(len=50) :: file
+    call cpu_time(t0)
+    call LEGQUAD(roots, weights, n)
+    call cpu_time(t1)
     !call LAGQUAD(roots, weights, n)
-    call HERQUAD(roots, weights, n)
-    
-    do k =1,n
-        write(*,'(I3, A, E22.14, A, E22.14)') k ,"th root found: ", roots(k), ", weight: ", weights(k)
-    end do
+    !call HERQUAD(roots, weights, n)
+    write(file, '(A,I0,A)') 'quad_',n,'.dat'
+    open(unit = 3, file=file)
 
+    do k =1,n
+        write(3,'(E32.20, 2x, E32.20)')roots(k), weights(k)
+    end do
+    write(*,'(A,F10.3,A)')"Quadrature evaluated, time taken: ", t1-t0, " s"
 
 end program main
