@@ -4,10 +4,10 @@ DOBJ = build
 DEXE = app
 DMOD = mod
 EXEN = main.exe
-
+all: $(DEXE)/$(EXEN)
 # Flags
 LIBS = 
-FLAGS = -O3 -I$(DOBJ) -I$(DMOD) -ffree-line-length-none -fimplicit-none
+FLAGS = -O3 -I$(DOBJ) -I$(DMOD) -fcheck=all -fbacktrace -g -ffree-line-length-none -fimplicit-none
 CC = gfortran $(FLAGS) -J$(DMOD) $(LIBS) -c
 CCL = gfortran -o
 
@@ -20,7 +20,8 @@ VPATH = $(DSRC):$(DTEST):$(DSRC)/$(DSH)
 $(DOBJ)/main.o: $(DSRC)/main.f90 $(DOBJ)/quad.o
 
 # Default target
-all: main
+
+
 
 $(DOBJ)/%.o: %.f90 | $(DOBJ) $(DMOD)
 	$(CC) $< -o $@
@@ -41,4 +42,6 @@ run: $(DEXE)/$(EXEN)
 
 
 clean:
-	rm -rf $(DOBJ)/*.o $(DEXE)/*.exe $(DMOD)/*.mod
+	rm -rf $(DOBJ)/*.o $(DEXE)/*.exe $(DMOD)/*.mod *.dat
+
+.PHONY: all clean run main
