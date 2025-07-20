@@ -255,7 +255,7 @@ module quad
 
         integer :: ii
         integer, parameter :: max_iter = 1000
-        real(kind=r_kind), parameter :: tol = 1e-25_r_kind
+        real(kind=r_kind), parameter :: tol = 50.0_r_kind*epsilon(1.0_r_kind)
         x = x0
         do ii = 1, max_iter
             
@@ -264,9 +264,10 @@ module quad
             xprev = x
             if(dfdx .eq. 0.0_r_kind) dfdx = 1000
             x = x  -fx/ dfdx
-            !write(*,'(A,E20.10,A,E20.10,A,E20.10)') "x:", x, ", f:", fx, " dfdx:" ,dfdx
+            write(*,'(A5,E90.60,A,E20.10,A,E20.10)') "x-old", abs(x-xprev)
+            write(*,'(A5,E90.60,A,E20.10,A,E20.10)') "tol:", tol
 
-            if(abs(x-xprev) < tol .and. abs(f%eval(x)) < tol) exit
+            if(abs(x-xprev) < tol) exit
         end do
 
         if (ii .ge. max_iter) then
