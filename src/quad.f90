@@ -90,13 +90,16 @@ module quad
     !! > If a 2n+1 polynomial can approximate f(x) well, legendre quadrature of order n is a good choice of quadrature points
     !! > 
     !! > Author: Filip Agert (2025)
-    subroutine LEGQUAD(leg_x,leg_w,n)
-        integer, intent(in) :: n !! Number of integration points
-        real(kind=r_kind), dimension(n), intent(out) :: leg_x !!integration absiccas
-        real(kind=r_kind), dimension(n), intent(out) :: leg_w!!integration weights
+    subroutine LEGQUAD(leg_x,leg_w)
+        real(kind=r_kind), dimension(:), intent(out) :: leg_x !!integration absiccas
+        real(kind=r_kind), dimension(:), intent(out) :: leg_w!!integration weights
         real(kind=r_kind) :: guess, x
         type(legendre) ::leg
-        integer :: ub, k, lb
+        integer :: ub, k, lb, n
+        n = size(leg_x)
+        if(n /= size(leg_w)) then
+            WRITE(*,*) "Error: Node and weight vector must be the same size. leg_x, leg_w: ", leg_x, leg_w
+        endif
         leg = legendre(n=n)
         leg_x =0
         if(mod(n,2) ==0) then
@@ -134,15 +137,18 @@ module quad
     !! > If a 2n+1 polynomial can approximate f(x) well, laguerre quadrature of order n is a good choice of quadrature points
     !! > 
     !! > Author: Filip Agert (2025)
-    subroutine LAGQUAD(lag_x,lag_w,n)
-        integer, intent(in) :: n !! Number of integration points
-        real(kind=r_kind), dimension(n), intent(out) :: lag_x !!integration absiccas
-        real(kind=r_kind), dimension(n), intent(out) :: lag_w! !integration weights
+    subroutine LAGQUAD(lag_x,lag_w)
+        real(kind=r_kind), dimension(:), intent(out) :: lag_x !!integration absiccas
+        real(kind=r_kind), dimension(:), intent(out) :: lag_w! !integration weights
         real(kind=r_kind) :: guess, x, init_cond_y, init_cond_x
         real(kind=r_kind), parameter :: pi =acos(-1.0_r_kind)
         type(laguerre) ::lag
         type(laguerre_diff) :: lagdiff
-        integer :: k
+        integer :: k,n
+        n = size(lag_x)
+        if(n /= size(lag_w)) then
+            WRITE(*,*) "Error: Node and weight vector must be the same size. leg_x, leg_w: ", lag_x, lag_w
+        endif
         lag = laguerre(n=n)
         lagdiff = laguerre_diff(n=n)
         lag_x = 0
@@ -182,15 +188,18 @@ module quad
     !! > If a 2n+1 polynomial can approximate f(x) well, hermite quadrature of order n is a good choice of quadrature points
     !! > 
     !! > Author: Filip Agert (2025)
-    subroutine HERQUAD(her_x,her_w,n)
-        integer, intent(in) :: n !! Number of integration points
-        real(kind=r_kind), dimension(n), intent(out) :: her_x !!integration absiccas
-        real(kind=r_kind), dimension(n), intent(out) :: her_w! !integration weights
+    subroutine HERQUAD(her_x,her_w)
+        real(kind=r_kind), dimension(:), intent(out) :: her_x !!integration absiccas
+        real(kind=r_kind), dimension(:), intent(out) :: her_w! !integration weights
         real(kind=r_kind) :: guess, x, init_cond_y, init_cond_x
         real(kind=r_kind), parameter :: pi =acos(-1.0_r_kind)
         type(hermite) ::her
         type(hermite_diff) :: herdiff
-        integer :: k, first
+        integer :: k, first,n
+        n = size(her_x)
+        if(n /= size(her_w)) then
+            WRITE(*,*) "Error: Node and weight vector must be the same size. leg_x, leg_w: ", her_x, her_w
+        endif
         her = hermite(n=n)
         herdiff = hermite_diff(n=n)
         her_x = 0
@@ -264,8 +273,8 @@ module quad
             xprev = x
             if(dfdx .eq. 0.0_r_kind) dfdx = 1000
             x = x  -fx/ dfdx
-            write(*,'(A5,E90.60,A,E20.10,A,E20.10)') "x-old", abs(x-xprev)
-            write(*,'(A5,E90.60,A,E20.10,A,E20.10)') "tol:", tol
+            ! write(*,'(A5,E90.60,A,E20.10,A,E20.10)') "x-old", abs(x-xprev)
+            ! write(*,'(A5,E90.60,A,E20.10,A,E20.10)') "tol:", tol
 
             if(abs(x-xprev) < tol) exit
         end do

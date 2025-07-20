@@ -1,6 +1,6 @@
 program main
     use quad
-    integer, parameter :: n = 64
+    integer, parameter :: n_default = 64
     real(kind=r_kind),allocatable ::roots(:), weights(:)
     real(kind=r_kind) t0, t1
     integer :: k, nquad
@@ -14,7 +14,7 @@ program main
         read(arg2, *) nquad !!read number of points
     else
         arg1 = "leg"
-        nquad = n
+        nquad = n_default
     endif
 
     if(nquad > 1750) then
@@ -27,9 +27,9 @@ program main
 
     call cpu_time(t0)
     if(arg1 == "leg") then
-        call LEGQUAD(roots, weights, nquad)
+        call LEGQUAD(roots, weights)
     else if(arg1 == "lag") then
-        call LAGQUAD(roots, weights, nquad)
+        call LAGQUAD(roots, weights)
     else
         write(*,*) "Invalid <type> option. Allowed : leg/lag"
         stop
