@@ -16,6 +16,11 @@ program main
         arg1 = "leg"
         nquad = n
     endif
+
+    if(nquad > 1750) then
+        WRITE(*,*) "ERROR: Code cannot handle this large number of quadrature points: nmax=",1750
+        STOP
+    endif
     allocate(weights(nquad),roots(nquad))
 
     arg1 = trim(arg1)
