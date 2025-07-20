@@ -48,5 +48,17 @@ program main
     end do
     close(3)
     write(*,'(A,F10.3,A)')"Quadrature evaluated, time taken: ", t1-t0, " s"
+    write(*,*)
+    write(*,*) "Example usage:"
+    if(arg1 == "leg") then
+        write(*,'(A)') "Integrate f(x) = 1/(1+25x^2) with bounds [-1, 1]"
+        write(*,'(A41,E45.32)') "Analytical solution: I = arctan(5) 2/5 = ", atan(5.0_r_kind)*2.0_r_kind/5
+        write(*,'(A41,E45.32)') "Quadrature solution: I = ", sum(weights/(1.0_r_kind+25.0_r_kind*roots**2),1)
+    else if(arg1 == "lag") then
+        write(*,'(A)') "Integrate f(x) = x^3 / (e^(x)-1) with bounds [0, inf]"
+        write(*,'(A41,E45.32)') adjustl("Analytical solution: I = pi^4 / 15 = "), ACOS(-1.0_r_kind)**4 / 15
+        write(*,'(A41,E45.32)') adjustl("Quadrature solution: I = "), sum(roots**3/(1-exp(-roots))*weights,1)
+    else
+    endif
 
 end program main

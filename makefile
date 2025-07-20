@@ -42,6 +42,6 @@ run: $(DEXE)/$(EXEN)
 
 
 clean:
-	rm -rf $(DOBJ)/*.o $(DEXE)/*.exe $(DMOD)/*.mod *.dat
+	rm -rf $(DOBJ)/*.o $(DEXE)/* $(DMOD)/*.mod *.dat 
 
 .PHONY: all clean run main
