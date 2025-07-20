@@ -23,6 +23,10 @@ To run the program, run the command app/main.exe \<type\> \<nquad\> with command
 
 \<nquad\>: Number of Gaussian quadrature points 
 
+This outputs into a file named \<type\>quad_\<nquad\>.dat into the root folder.
+
+The first column in the file is the quadrature nodes, while the second column is the quadrature weights.
+
 # Runtime
 Type     N       Runtime [s]
 
