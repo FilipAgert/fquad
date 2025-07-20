@@ -154,9 +154,9 @@ module quad
             init_cond_y = lag_x(k-1)
             init_cond_x = pi /2.0_r_kind
             call solveRK(guess, -pi/2.0_r_kind, init_cond_x, init_cond_y, lagdiff)
-            write(*,'(A,F10.3,A,F10.3)', advance='no') "Guess: ", guess
+            !write(*,'(A,F10.3,A,F10.3)', advance='no') "Guess: ", guess
             lag_x(k) = find_root(lag, guess) !Refine root computation
-            write(*,'(A,F10.3,A,F10.3)')", found root:", lag_x(k)
+            !write(*,'(A,F10.3,A,F10.3)')", found root:", lag_x(k)
             if (k>1) then 
                 if(lag_x(k) .le. lag_x(k-1)) then
 
@@ -205,15 +205,15 @@ module quad
         guess = her_root_approx(n,1) !First root
         her_x(n) = find_root(her, guess) !Refine root computation
         her_x(1)=-her_x(n)
-        write(*,*) "First root:", her_x(n), ", guess:", guess
+        !write(*,*) "First root:", her_x(n), ", guess:", guess
 
         do k =n-1,first,-1
             init_cond_y = her_x(k+1)
             init_cond_x = -pi /2.0_r_kind
             call solveRK(guess, pi/2.0_r_kind, init_cond_x, init_cond_y, herdiff)
-            write(*,'(A,F10.3,A,F10.3)', advance='no') "Guess: ", guess
+            !write(*,'(A,F10.3,A,F10.3)', advance='no') "Guess: ", guess
             her_x(k) = find_root(her, guess) !Refine root computation
-            write(*,'(A,E30.10,A,E20.10)')", found root:", her_x(k)!, " h_n(x)", Hn(her_x(k),n)
+            !write(*,'(A,E30.10,A,E20.10)')", found root:", her_x(k)!, " h_n(x)", Hn(her_x(k),n)
             her_x(n-k+1) = -her_x(k)
 
             if (k<n) then 
@@ -229,7 +229,7 @@ module quad
             x = her_x(k)
             her_w(k) = sqrt(pi) * 2.0_r_kind**(n-1) *fac(n-1) / (n*Hn(x,n-1)**2)
         end do
-        WRITE(*,*) "WARNING: Hermite quadrature does not work yet."
+        !WRITE(*,*) "WARNING: Hermite quadrature does not work yet."
     end subroutine
 
     real(kind=r_kind) function fac(n)
