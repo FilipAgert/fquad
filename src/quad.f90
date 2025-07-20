@@ -213,7 +213,7 @@ module quad
             call solveRK(guess, pi/2.0_r_kind, init_cond_x, init_cond_y, herdiff)
             write(*,'(A,F10.3,A,F10.3)', advance='no') "Guess: ", guess
             her_x(k) = find_root(her, guess) !Refine root computation
-            write(*,'(A,E30.10,A,F10.3)')", found root:", her_x(k)
+            write(*,'(A,E30.10,A,E20.10)')", found root:", her_x(k)!, " h_n(x)", Hn(her_x(k),n)
             her_x(n-k+1) = -her_x(k)
 
             if (k<n) then 
@@ -254,7 +254,7 @@ module quad
         real(kind=r_kind) :: fx, dfdx, xprev
 
         integer :: ii
-        integer, parameter :: max_iter = 40
+        integer, parameter :: max_iter = 1000
         real(kind=r_kind), parameter :: tol = 1e-25_r_kind
         x = x0
         do ii = 1, max_iter
@@ -264,11 +264,12 @@ module quad
             xprev = x
             if(dfdx .eq. 0.0_r_kind) dfdx = 1000
             x = x  -fx/ dfdx
+            !write(*,'(A,E20.10,A,E20.10,A,E20.10)') "x:", x, ", f:", fx, " dfdx:" ,dfdx
 
             if(abs(x-xprev) < tol .and. abs(f%eval(x)) < tol) exit
         end do
 
-        if (ii == max_iter) then
+        if (ii .ge. max_iter) then
             write(*,*) "Error: Max iterations reached in finding root. Stopping"
             STOP
         endif

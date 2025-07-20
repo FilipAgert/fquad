@@ -1,10 +1,10 @@
 program main
     use quad
-    integer, parameter :: n = 20
+    integer, parameter :: n = 32
     real(kind=r_kind) ::roots(n), weights(n)
     integer :: k
     !call LEGQUAD(roots, weights, n)
-    !call LAGQUAD(roots, weights, n)
+    call LAGQUAD(roots, weights, n)
     call HERQUAD(roots, weights, n)
     
     do k =1,n
