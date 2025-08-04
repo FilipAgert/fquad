@@ -7,7 +7,9 @@ EXEN = fquad
 all: $(DEXE)/$(EXEN)
 # Flags
 LIBS = 
-FLAGS = -O3 -I$(DOBJ) -I$(DMOD) -fcheck=all -fbacktrace -g -ffree-line-length-none -fimplicit-none
+FLAGREL = -O3 -I$(DOBJ) -I$(DMOD) -fcheck=all -fbacktrace -g -ffree-line-length-none -fimplicit-none
+FLAGDEV = -O2 -I$(DOBJ) -I$(DMOD) -fbacktrace -g -fno-omit-frame-pointer -ffree-line-length-none -fimplicit-none
+FLAGS = $(FLAGDEV)
 CC = gfortran $(FLAGS) -J$(DMOD) $(LIBS) -c
 CCL = gfortran -o
 
@@ -39,7 +41,17 @@ main: $(DEXE)/$(EXEN)
 run: $(DEXE)/$(EXEN)
 	$(DEXE)/$(EXEN) $(ARG1) $(ARG2)
 
-
+runcallgrind:
+	@name="callgrind.out.$(EXEN)"; \
+	n=0; \
+	filename="$$name"; \
+	while [ -e "$$filename" ]; do \
+		n=$$((n+1)); \
+		filename="$$name\_$$n"; \
+	done; \
+	echo "Saving callgrind output to $$filename"; \
+	valgrind --tool=callgrind --callgrind-out-file=$$filename $(DEXE)/$(EXEN); \
+	kcachegrind $$filename
 
 clean:
 	rm -rf $(DOBJ)/*.o $(DEXE)/* $(DMOD)/*.mod *.dat 
