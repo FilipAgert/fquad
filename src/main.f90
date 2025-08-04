@@ -1,6 +1,6 @@
 program main
     use quad
-    integer, parameter :: n_default = 64
+    integer, parameter :: n_default = 128
     real(kind=kind),allocatable ::roots(:), weights(:)
     real(kind=kind) t0, t1
     integer :: k, nquad
@@ -33,7 +33,7 @@ program main
     else if(arg1 == "her") then
         call HERQUAD(roots, weights)
     else
-        write(*,*) "Invalid <type> option. Allowed : leg/lag"
+        write(*,*) "Invalid <type> option. Allowed : leg/lag/her"
         stop
     endif
 

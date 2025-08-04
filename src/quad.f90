@@ -13,7 +13,7 @@ module quad
         procedure(diffeq_int), deferred :: evaldydx
     end type
 
-    integer, parameter :: kind = 16
+    integer, parameter :: kind = 8
 
     integer :: NQUAD
 
