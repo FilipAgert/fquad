@@ -266,8 +266,10 @@ module quad
         real(kind=kind) :: fx, dfdx, xprev
 
         integer :: ii
-        integer, parameter :: max_iter = 1000
-        real(kind=kind), parameter :: tol = 2.0_kind*epsilon(1.0_kind)
+        integer, parameter :: max_iter = 10000
+        real(kind=kind), parameter :: tol = 16.0_kind*epsilon(1.0_kind)
+        real(kind) :: factor
+        factor = 1.0
         x = x0
         do ii = 1, max_iter
             
@@ -275,11 +277,10 @@ module quad
             dfdx = f%evaldfdx(x)
             xprev = x
             if(dfdx .eq. 0.0_kind) dfdx = 1000
-            x = x  -fx/ dfdx
-            ! write(*,'(A5,E90.60,A,E20.10,A,E20.10)') "x-old", abs(x-xprev)
-            ! write(*,'(A5,E90.60,A,E20.10,A,E20.10)') "tol:", tol
+            x = x  -fx/ dfdx*0.25
 
-            if(abs(x-xprev) < tol*abs(x)) exit
+            if(abs(x) > 1.0_kind) factor = abs(x)
+            if(abs(x-xprev) < tol*factor) exit
         end do
 
         if (ii .ge. max_iter) then

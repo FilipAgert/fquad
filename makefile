@@ -7,9 +7,9 @@ EXEN = fquad
 all: $(DEXE)/$(EXEN)
 # Flags
 LIBS = 
-FLAGREL = -O3 -I$(DOBJ) -I$(DMOD) -fcheck=all -fbacktrace -g -ffree-line-length-none -fimplicit-none
+FLAGREL = -O3 -I$(DOBJ) -I$(DMOD) -ffree-line-length-none -fimplicit-none
 FLAGDEV = -O2 -I$(DOBJ) -I$(DMOD) -fbacktrace -g -fno-omit-frame-pointer -ffree-line-length-none -fimplicit-none
-FLAGS = $(FLAGDEV)
+FLAGS = $(FLAGREL)
 CC = gfortran $(FLAGS) -J$(DMOD) $(LIBS) -c
 CCL = gfortran -o
 
